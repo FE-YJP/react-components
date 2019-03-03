@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>点赞组件</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div id="root"></div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react.dom.js"></script>
+    <script src="../lib/babel.js"></script>
+    <script type="text/babel">
+        class Updown extends React.Component{
+        constructor(props){
+            super(props);
+            this.state={
+                up:10,
+                down:3,
+                //是否点过赞，默认null
+                voted:null,
+            }
+        }
+        typeReverse(type){
+            return type=="up"?"down":"up";
+        }
+        change(type,num=1){
+            this.setState({
+                    [type]:this.state[type]+num,
+             })      
+             if(num<0){
+                 this.setState({voted:null});
+             }else{
+                 this.setState({voted:type});
+             }
+        }
+        Vote=(type)=>{
+            let voted=this.state.voted;
+            let typeReverse=this.typeReverse(type);
+            if(voted){
+                //如果第二次还是点的赞,应该取消点赞，并且赞数减一
+                if(voted==type){
+                    this.change(type,-1)
+                    //如果又想点赞了，那么点踩就要减1
+                }else{
+                    this.change(typeReverse,-1);
+                    this.change(type);
+                }
+            }else{
+                this.change(type);  
+            }
+              
+        }
+        upVote=()=>{
+            this.Vote("up");
+        }
+        downVote=()=>{
+            this.Vote("down");
+        }   
+        render(){
+            return <div>
+            <button onClick={this.upVote}>{this.state.up}</button>
+            <button onClick={this.downVote}>{this.state.down}</button>
+            </div>
+        }        
+    }
+    
+    ReactDOM.render(<Updown/>,root);
+    </script>
+</body>
+
+</html>
