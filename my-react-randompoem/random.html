@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type='text/javascript' src='../lib/react.js'></script>
+    <script type='text/javascript' src='../lib/react.dom.js'></script>
+    <script type='text/javascript' src='../lib/babel.js'></script>
+    <script type='text/javascript' src='../lib/axios.js'></script>
+    <style>
+        body,html{
+            margin: 0;
+            padding: 0;
+            transition: all 1s;
+            opacity: .8;
+            font-family: "微软雅黑";
+            overflow: auto;
+        }
+        #root{
+            width:300px;
+            overflow: auto;
+            height:auto;
+            padding:20px;
+            border-radius:15px;
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            background-color: #fff;
+            transition: all 1s;
+            z-index:100;
+        }
+        .author{
+            text-align:right;
+        }
+        .title{
+            font-weight: normal;
+        }
+        .content{
+            line-height: 30px;
+        }
+        .btn{
+            border:none;
+            background:none;
+            width:100px;
+            height:50px;
+            border-radius: 10px;
+            background-color: #42A5F5;
+            outline:none;
+            cursor: pointer;
+            font-size: 16px;
+            color:#fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        //获取body
+        let body=document.getElementsByTagName("body")[0];
+        //react根元素
+        let root=document.getElementById("root");
+        ////造个随机库
+		let str="0123456789abcdef";
+		//造个随机背景函数
+		function bgrandom(){
+			var bg="#";
+			for(var i=0;i<6;i++){
+				var rand=parseInt(Math.random()*str.length);
+				bg+=str[rand];
+            }
+			return bg;
+		}
+        //获取数据并更新state
+        function getstate(obj){
+            axios({
+                    url:"https://api.apiopen.top/recommendPoetry"
+                }).then(data=>{
+                    let content=data.data.result.content.replace(/\|/g,"");
+                    let result=data.data.result;
+                    result.content=content;
+                    //背景颜色改变
+                    body.style.background=bgrandom();
+                    root.style.color=bgrandom();
+                    obj.setState({
+                        data:result
+                    })
+                })
+        }
+        class Poem extends React.Component{
+            constructor(props){
+                super(props)
+                this.state={
+                    data:{}
+                }
+            }
+            tap(){
+                let _this=this;
+               getstate(_this);
+            }
+            render(){
+                return (<div className="poem">
+                    <h3 className="title">{this.state.data.title}</h3>
+                    <p className="content">{this.state.data.content}</p>
+                    <h4 className="author">by--{this.state.data.authors}</h4>
+                    <div>
+                        <button className="btn" onClick={this.tap.bind(this)}>点我更换</button>
+                    </div>
+                    </div>)
+            }
+            //mount阶段异步加载数据
+            componentDidMount(){
+                //执行异步加载
+                let _this=this;
+               getstate(_this);
+            }
+        }
+        ReactDOM.render(<Poem/>,root);
+    </script>
+</body>
+</html>
